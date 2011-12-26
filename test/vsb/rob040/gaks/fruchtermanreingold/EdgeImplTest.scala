@@ -1,11 +1,7 @@
 package vsb.rob040.gaks.fruchtermanreingold
 
 import org.junit.Assert._
-import org.junit.Test	@Test(expected=classOf[NullPointerException])
-	def testConstructorVertexANull = {
-		val temp = new EdgeImpl(5, null, new VertexImpl(2))
-	}
-
+import org.junit.Test
 import org.junit.Before
 import vsb.graphinterfaces._
 

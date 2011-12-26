@@ -20,5 +20,7 @@ class EdgeImpl(id: Long, vertexA: Vertex, vertexB: Vertex, metadata: Metadata = 
 	def contains(vertex: Vertex): Boolean = vertexA == vertex || vertexB == vertex
 	
 	override def equals(obj: Any) = obj.isInstanceOf[Edge] && obj.asInstanceOf[Edge].getId == id // todo: look at vertexes
-	
+
+	override def hashCode = id.hashCode
+
 }

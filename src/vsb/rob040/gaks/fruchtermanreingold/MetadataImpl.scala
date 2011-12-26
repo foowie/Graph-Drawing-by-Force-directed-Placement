@@ -1,14 +1,14 @@
 package vsb.rob040.gaks.fruchtermanreingold
 
-import java.util.HashMap
+import scala.collection.mutable.HashMap
 import vsb.graphinterfaces.Metadata
 
 class MetadataImpl extends Metadata {
 
-	val map = new HashMap[String, Object]();
+	val map = new HashMap[String, Any]();
 	
-	def setValue(name: String, value: Object) = map.put(name, value)
+	def setValue(name: String, value: Any) = map.put(name, value)
 	
-	def getValue(name: String): Object = map.get(name)
+	def getValue(name: String): Option[Any] = map.get(name)
 	
 }

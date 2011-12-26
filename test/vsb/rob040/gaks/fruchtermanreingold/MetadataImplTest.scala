@@ -15,28 +15,28 @@ class MetadataImplTest {
 	
 	@Test def testValueInt = {
 		metadata.setValue("x", 5)
-		assertEquals(5, metadata.getValue("x"))
+		assertEquals(5, metadata.getValue("x").get)
 	}
 	
 	@Test def testValueString = {
 		metadata.setValue("y", "y")
-		assertEquals("y", metadata.getValue("y"))
+		assertEquals("y", metadata.getValue("y").get)
 	}
 	
 	@Test def testValueMulti = {
 		metadata.setValue("x", 1)
 		metadata.setValue("y", "y")
-		assertEquals(1, metadata.getValue("x"))
-		assertEquals("y", metadata.getValue("y"))
+		assertEquals(1, metadata.getValue("x").get)
+		assertEquals("y", metadata.getValue("y").get)
 	}
 	
 	@Test def testValueNull = {
 		metadata.setValue("null", null)
-		assertEquals(null, metadata.getValue("null"))
+		assertEquals(null, metadata.getValue("null").get)
 	}
 	
 	@Test def testValueNotPresent = {
-		assertEquals(null, metadata.getValue("abc"))
+		assertEquals(None, metadata.getValue("abc"))
 	}
 	
 }
