@@ -18,16 +18,19 @@ class EdgeImplTest {
 	@Test(expected=classOf[NullPointerException])
 	def testConstructorVertexANull = {
 		val temp = new EdgeImpl(5, null, new VertexImpl(2))
+		fail
 	}
 	
 	@Test(expected=classOf[NullPointerException])
 	def testConstructorVertexBNull = {
 		val temp = new EdgeImpl(5, new VertexImpl(1), null)
+		fail
 	}
 	
 	@Test(expected=classOf[IllegalStateException])
 	def testConstructorVertexesAreSame = {
 		val temp = new EdgeImpl(5, new VertexImpl(1), new VertexImpl(1))
+		fail
 	}
 	
 	@Test def testGetVertexA = assertEquals(1, edge.getVertexA.getId)

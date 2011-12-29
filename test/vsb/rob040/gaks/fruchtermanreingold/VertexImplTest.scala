@@ -36,17 +36,20 @@ class VertexImplTest {
 	@Test(expected=classOf[NullPointerException])
 	def testAddEdgeNull = {
 		vertex.addEdge(null)
+		fail
 	}
 	
 	@Test(expected=classOf[IllegalStateException])
 	def testAddEdgeExists = {
 		vertex.addEdge(new EdgeImpl(1, vertex, vertexA))
 		vertex.addEdge(new EdgeImpl(1, vertex, vertexA))
+		fail
 	}
 	
 	@Test(expected=classOf[IllegalStateException])
 	def testAddEdgeNotContainsThisVertex = {
 		vertex.addEdge(new EdgeImpl(1, vertexA, vertexB))
+		fail
 	}
 	
 	@Test def testGetEdge = {
@@ -114,12 +117,4 @@ class VertexImplTest {
 	}
 	
 	
-}
-
-class VertexFilterHelper extends VertexFilter {
-	def isFiltered(vertex: Vertex): Boolean = vertex.getId < 3
-}
-
-class EdgeFilterHelper extends EdgeFilter {
-	def isFiltered(edge: Edge): Boolean = edge.getId < 5 
 }
