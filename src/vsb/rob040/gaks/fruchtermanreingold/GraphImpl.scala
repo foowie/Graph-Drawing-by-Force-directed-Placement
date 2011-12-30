@@ -1,7 +1,7 @@
 package vsb.rob040.gaks.fruchtermanreingold
 
 import scala.collection.mutable.HashSet
-import vsb.graphinterfaces._;
+import vsb.graphinterfaces._
 
 class GraphImpl extends Graph {
 
@@ -30,22 +30,22 @@ class GraphImpl extends Graph {
 		edgeCounter += 1
 	}
 	
-	def getVertices: Set[Vertex] = vertices.toSet[Vertex]
+	def getVertices: scala.collection.Set[Vertex] = vertices
 	
-	def getVerticesMap: Map[Long, Vertex] = vertices.map(vertex => (vertex.getId, vertex)).toMap
+	def getVerticesMap: scala.collection.Map[Long, Vertex] = vertices.map(vertex => (vertex.getId, vertex)).toMap
 	
-	def getEdges: Set[Edge] = edges.toSet[Edge]
+	def getEdges: scala.collection.Set[Edge] = edges
 	
-	def getVerticesBy(filter: VertexFilter): Set[Vertex] = {
+	def getVerticesBy(filter: VertexFilter): scala.collection.Set[Vertex] = {
 		if(filter == null)
 			throw new NullPointerException("Filter can't be null")
-		vertices.filter(x => filter.isFiltered(x)).toSet[Vertex]
+		vertices.filter(x => filter.isFiltered(x))
 	}
 	
-	def getEdgesBy(filter: EdgeFilter): Set[Edge] = {
+	def getEdgesBy(filter: EdgeFilter): scala.collection.Set[Edge] = {
 		if(filter == null)
 			throw new NullPointerException("Filter can't be null")
-		edges.filter(x => filter.isFiltered(x)).toSet[Edge]
+		edges.filter(x => filter.isFiltered(x))
 	}
 	
 }

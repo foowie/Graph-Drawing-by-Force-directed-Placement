@@ -11,4 +11,9 @@ class MetadataImpl extends Metadata {
 	
 	def getValue(name: String): Option[Any] = map.get(name)
 	
+	def getX: Int = map.get("x").getOrElse(0).asInstanceOf[Int]
+	def setX(x: Int) = map.put("x", x)
+	def getY: Int = map.get("y").getOrElse(0).asInstanceOf[Int]
+	def setY(y: Int) = map.put("y", y)
+	
 }
