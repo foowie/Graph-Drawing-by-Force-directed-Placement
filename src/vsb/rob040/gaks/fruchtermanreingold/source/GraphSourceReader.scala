@@ -33,11 +33,11 @@ class GraphSourceReader(reader: Reader) extends GraphSource {
 			if(optional)
 				return None
 			else
-				throw new IllegalStateException("Invalid input file !")
+				throw new IllegalStateException("Invalid input file (missing second edge vertex) !")
 		}
 			
 		if(tokenizer.ttype != StreamTokenizer.TT_NUMBER)
-			throw new IllegalStateException("Invalid input file !")
+			throw new IllegalStateException("Invalid input file (not a number) '" + tokenizer.sval + "' !")
 
 		return Some(tokenizer.nval.intValue)
 	}
