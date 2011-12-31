@@ -1,8 +1,7 @@
 package vsb.rob040.gaks.fruchtermanreingold
 
 import scala.util.Random
-import vsb.graphinterfaces.Graph
-import vsb.graphinterfaces.Layout
+import vsb.graphinterfaces._
 
 class FruchtermanReingoldLayout(val width: Int, val height: Int, val graph: Graph, val iterations: Int) extends Layout {
 
@@ -26,78 +25,91 @@ class FruchtermanReingoldLayout(val width: Int, val height: Int, val graph: Grap
 	
 	def run = {
 		// init metadata
-		graph.getVertices.foreach(vertex => {
-				val vertexMetadata = new VertexMetadata
-				vertexMetadata.loc.set(vertex.getMetadata.getX, vertex.getMetadata.getY)
-				vertex.getMetadata.setValue("fr", vertexMetadata)
-			})
+		graph.getVertices.foreach(initMetadata)
 	
 		for(iteration <- 1 to iterations) {
+			
 			// clear disp metadata
-			graph.getVertices.foreach(vertex => {
-					vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata].disp.clear
-				})
+			graph.getVertices.foreach(vertex => vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata].disp.clear)
 
 			// repulsion
-			graph.getVertices.foreach(vertex => {
-					val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-					graph.getVertices.foreach(vertex2 => {
-							val meta2 = vertex2.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-							if(vertex != vertex2) {
-								val delta = meta.loc - meta2.loc
-								val deltaLength = math.max(epsilon, delta.lenght)
-								val force = forceConstant * forceConstant / deltaLength
-								if(force.isNaN)
-									throw new IllegalStateException("Force is NaN")
-								meta.disp += delta * force / deltaLength
-							}
-						})
-				})
+			graph.getVertices.foreach(calculateRepulsion)
 
 			// attraction
-			graph.getEdges.foreach(edge => {
-					val metaA = edge.getVertexA.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-					val metaB = edge.getVertexB.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-					
-					val delta = metaA.loc - metaB.loc
-					val deltaLength = math.max(epsilon, delta.lenght)
-					val force = deltaLength * deltaLength / forceConstant
-					if(force.isNaN)
-						throw new IllegalStateException("Force is NaN")
-					
-					val disp = delta * force / deltaLength
-					
-					metaA.disp -= disp
-					metaB.disp += disp
-				})
+			graph.getEdges.foreach(calculateAttraction)
 
-			graph.getVertices.foreach(vertex => {
-					val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-					val delta = math.max(epsilon, meta.disp.lenght)
-					val disp = meta.disp * math.min(temperature, delta) / delta
-					if(disp.isNaN)
-						throw new IllegalStateException("Disp is NAN")
-
-					meta.loc.x = betweenBorder(0, meta.loc.x + disp.x, width, width / 100.0)
-					meta.loc.y = betweenBorder(0, meta.loc.y + disp.y, height, height / 100.0)
-					
-					vertex.getMetadata.setX(meta.loc.x.toInt)
-					vertex.getMetadata.setY(meta.loc.y.toInt)
-				})
+			// position
+			graph.getVertices.foreach(calculatePosition)
 			
 			// cool
-			temperature *= (1.0D - iteration.toDouble / iterations.toDouble);
+			cool(iteration)
 			
+			// invoke callback
 			if(onLoop != null)
 				onLoop(iteration, iteration == iterations)
 		}
 	}
 	
-	private def betweenBorder(min: Double, value: Double, max: Double, border: Double): Double = {
-		if(value < min + border)
-			return min + border * math.random
-		if(value > max - border)
-			return max - border * math.random
+	protected def initMetadata(vertex: Vertex) = {
+		val vertexMetadata = new VertexMetadata
+		vertexMetadata.loc.set(vertex.getMetadata.getX, vertex.getMetadata.getY)
+		vertex.getMetadata.setValue("fr", vertexMetadata)
+	}
+	
+	protected def calculateRepulsion(vertex: Vertex) = {
+		val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		graph.getVertices.foreach(vertex2 => {
+				val meta2 = vertex2.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+				if(vertex != vertex2) {
+					val delta = meta.loc - meta2.loc
+					val deltaLength = math.max(epsilon, delta.lenght)
+					val force = forceConstant * forceConstant / deltaLength
+					if(force.isNaN)
+						throw new IllegalStateException("Force is NaN")
+					meta.disp += delta * force / deltaLength
+				}
+			})
+	}
+	
+	protected def calculateAttraction(edge: Edge) = {
+		val metaA = edge.getVertexA.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		val metaB = edge.getVertexB.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+
+		val delta = metaA.loc - metaB.loc
+		val deltaLength = math.max(epsilon, delta.lenght)
+		val force = deltaLength * deltaLength / forceConstant
+		if(force.isNaN)
+			throw new IllegalStateException("Force is NaN")
+
+		val disp = delta * force / deltaLength
+
+		metaA.disp -= disp
+		metaB.disp += disp
+	}
+	
+	protected def calculatePosition(vertex: Vertex) = {
+		val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		val delta = math.max(epsilon, meta.disp.lenght)
+		val disp = meta.disp * math.min(temperature, delta) / delta
+		if(disp.isNaN)
+			throw new IllegalStateException("Disp is NAN")
+
+		meta.loc.x = between(0, meta.loc.x + disp.x, width)
+		meta.loc.y = between(0, meta.loc.y + disp.y, height)
+
+		vertex.getMetadata.setX(meta.loc.x.toInt)
+		vertex.getMetadata.setY(meta.loc.y.toInt)
+	}
+	
+	protected def cool(iteration: Int) = {
+		temperature *= (1.0D - (iteration.toDouble / iterations));
+	}
+	
+	protected def between(min: Double, value: Double, max: Double): Double = {
+		if(value < min)
+			return min
+		if(value > max)
+			return max
 		return value
 	}
 	
