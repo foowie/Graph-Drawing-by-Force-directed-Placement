@@ -22,7 +22,7 @@ class GraphFactory(graphSource: GraphSource) {
 				if(vertex1 == None || vertex2 == None)
 					throw new IllegalStateException("Vertices not found " + edge.getValue1 + "/" + edge.getValue2)
 				graph.addEdge(vertex1.get, vertex2.get)
-		})
+			})
 		graph
 	}
 }

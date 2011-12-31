@@ -6,8 +6,8 @@ import vsb.graphinterfaces.Layout
 
 class LayoutRendererImpl(border: Int = 20, displyVerticeNames: Boolean = true) extends LayoutRenderer {
 	
-	val minVertexSize = 5
-	val maxVertexSize = 31
+	var minVertexSize = 5
+	var maxVertexSize = 31
 	
 	def render(layout: Layout, graphics: Graphics) = {
 		if(layout == null)
@@ -44,9 +44,6 @@ class LayoutRendererImpl(border: Int = 20, displyVerticeNames: Boolean = true) e
 				}
 			})
 		
-		
 	}
-
-	
 	
 }

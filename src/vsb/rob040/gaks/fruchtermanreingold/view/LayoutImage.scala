@@ -6,6 +6,7 @@ import javax.imageio.ImageIO
 import vsb.graphinterfaces.Layout
 
 class LayoutImage(val renderer: LayoutRenderer, border: Int) {
+	
 	def save(layout: Layout, file: File) = {
 		
 		if(file == null)
