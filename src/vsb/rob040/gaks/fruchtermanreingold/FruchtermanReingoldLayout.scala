@@ -2,14 +2,17 @@ package vsb.rob040.gaks.fruchtermanreingold
 
 import scala.util.Random
 import vsb.graphinterfaces._
+import vsb.rob040.gaks.fruchtermanreingold.vertexneighbours._
 
 class FruchtermanReingoldLayout(val width: Int, val height: Int, val graph: Graph, val iterations: Int) extends Layout {
 
-	val forceConstant = 0.8 * math.sqrt(width * height / graph.getVertices.size)
-	var temperature = 0.1 * math.sqrt(width * height)
-	val epsilon = 0.00001D
+	val area = width * height
+	val k = 0.8 * math.sqrt(area / graph.getVertices.size)
+	var temperature = 0.1 * math.sqrt(area)
+	val epsilon = 0.0001D
 	var currentIteration = 1
 	var onLoop: (Int, Boolean) => Unit = null
+	var vertexNeighbours: VertexNeighbours = new AllVertexNeighbours(graph)
 	
 	def getWidth: Int = width
 	def getHeight: Int = height
@@ -24,10 +27,15 @@ class FruchtermanReingoldLayout(val width: Int, val height: Int, val graph: Grap
 	}
 	
 	def run = {
+		// shuffle vertices position
+		shuffle
+		
 		// init metadata
 		graph.getVertices.foreach(initMetadata)
 	
 		for(iteration <- 1 to iterations) {
+			
+			vertexNeighbours.beforeIteration
 			
 			// clear disp metadata
 			graph.getVertices.foreach(vertex => vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata].disp.clear)
@@ -52,57 +60,51 @@ class FruchtermanReingoldLayout(val width: Int, val height: Int, val graph: Grap
 	
 	protected def initMetadata(vertex: Vertex) = {
 		val vertexMetadata = new VertexMetadata
-		vertexMetadata.loc.set(vertex.getMetadata.getX, vertex.getMetadata.getY)
+		vertexMetadata.pos.set(vertex.getMetadata.getX, vertex.getMetadata.getY)
 		vertex.getMetadata.setValue("fr", vertexMetadata)
 	}
 	
-	protected def calculateRepulsion(vertex: Vertex) = {
-		val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-		graph.getVertices.foreach(vertex2 => {
-				val meta2 = vertex2.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-				if(vertex != vertex2) {
-					val delta = meta.loc - meta2.loc
-					val deltaLength = math.max(epsilon, delta.lenght)
-					val force = forceConstant * forceConstant / deltaLength
-					if(force.isNaN)
-						throw new IllegalStateException("Force is NaN")
-					meta.disp += delta * force / deltaLength
+	protected def calculateRepulsion(vertexV: Vertex) = {
+		val metaV = vertexV.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		vertexNeighbours.forNeighbours(vertexV, vertexU => {
+				val metaU = vertexU.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+				if(vertexV != vertexU) {
+					val delta = metaV.pos - metaU.pos
+					val deltaLength = math.max(epsilon, delta.lenght) // avoid x/0
+					val force = k * k / deltaLength
+					metaV.disp += delta * force / deltaLength
 				}
 			})
 	}
 	
 	protected def calculateAttraction(edge: Edge) = {
-		val metaA = edge.getVertexA.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-		val metaB = edge.getVertexB.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		val metaV = edge.getVertexA.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
+		val metaU = edge.getVertexB.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
 
-		val delta = metaA.loc - metaB.loc
-		val deltaLength = math.max(epsilon, delta.lenght)
-		val force = deltaLength * deltaLength / forceConstant
-		if(force.isNaN)
-			throw new IllegalStateException("Force is NaN")
+		val delta = metaV.pos - metaU.pos
+		val deltaLength = math.max(epsilon, delta.lenght) // avoid x/0
+		val force = deltaLength * deltaLength / k
 
 		val disp = delta * force / deltaLength
 
-		metaA.disp -= disp
-		metaB.disp += disp
+		metaV.disp -= disp
+		metaU.disp += disp
 	}
 	
 	protected def calculatePosition(vertex: Vertex) = {
 		val meta = vertex.getMetadata.getValue("fr").get.asInstanceOf[VertexMetadata]
-		val delta = math.max(epsilon, meta.disp.lenght)
+		val delta = math.max(epsilon, meta.disp.lenght) // avoid x/0
 		val disp = meta.disp * math.min(temperature, delta) / delta
-		if(disp.isNaN)
-			throw new IllegalStateException("Disp is NAN")
 
-		meta.loc.x = between(0, meta.loc.x + disp.x, width)
-		meta.loc.y = between(0, meta.loc.y + disp.y, height)
+		meta.pos.x = between(0, meta.pos.x + disp.x, width)
+		meta.pos.y = between(0, meta.pos.y + disp.y, height)
 
-		vertex.getMetadata.setX(meta.loc.x.toInt)
-		vertex.getMetadata.setY(meta.loc.y.toInt)
+		vertex.getMetadata.setX(meta.pos.x.toInt)
+		vertex.getMetadata.setY(meta.pos.y.toInt)
 	}
 	
 	protected def cool(iteration: Int) = {
-		temperature *= (1.0D - (iteration.toDouble / iterations));
+		temperature = (1.0 - (iteration.toDouble / iterations)) * 0.1 * math.sqrt(area);
 	}
 	
 	protected def between(min: Double, value: Double, max: Double): Double = {
@@ -155,6 +157,6 @@ protected class Vector(var x: Double = 0.0, var y: Double = 0.0) {
 }
 
 protected class VertexMetadata {
-	var loc = new Vector
+	var pos = new Vector
 	var disp = new Vector
 }
