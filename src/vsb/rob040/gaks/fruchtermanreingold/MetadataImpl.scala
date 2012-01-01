@@ -3,6 +3,9 @@ package vsb.rob040.gaks.fruchtermanreingold
 import scala.collection.mutable.HashMap
 import vsb.graphinterfaces.Metadata
 
+/**
+ * Metadata of single vertex
+ */
 class MetadataImpl extends Metadata {
 
 	val map = new HashMap[String, Any]();

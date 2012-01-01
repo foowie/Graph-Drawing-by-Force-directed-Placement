@@ -3,12 +3,14 @@ package vsb.rob040.gaks.fruchtermanreingold
 import scala.collection.mutable.HashSet
 import vsb.graphinterfaces._
 
+/**
+ * Implementation of graph
+ */
 class GraphImpl extends Graph {
 
-	val vertices = new HashSet[Vertex]
-	val edges = new HashSet[Edge]
-	
-	var edgeCounter = 0
+	private val vertices = new HashSet[Vertex]
+	private val edges = new HashSet[Edge]
+	private var edgeCounter = 0
 	
 	def addVertex(vertex: Vertex) = {
 		if(vertex == null)
@@ -39,13 +41,13 @@ class GraphImpl extends Graph {
 	def getVerticesBy(filter: VertexFilter): scala.collection.Set[Vertex] = {
 		if(filter == null)
 			throw new NullPointerException("Filter can't be null")
-		vertices.filter(x => filter.isFiltered(x))
+		vertices.filter(filter.isFiltered)
 	}
 	
 	def getEdgesBy(filter: EdgeFilter): scala.collection.Set[Edge] = {
 		if(filter == null)
 			throw new NullPointerException("Filter can't be null")
-		edges.filter(x => filter.isFiltered(x))
+		edges.filter(filter.isFiltered)
 	}
 	
 }

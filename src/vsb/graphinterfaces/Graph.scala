@@ -1,5 +1,8 @@
 package vsb.graphinterfaces
 
+/**
+ * Graph
+ */
 trait Graph {
 
 	def addVertex(vertex: Vertex)

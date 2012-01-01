@@ -1,5 +1,8 @@
 package vsb.graphinterfaces
 
+/**
+ * Edge between 2 vertices
+ */
 trait Edge {
 	
 	def getId: Long

@@ -4,9 +4,12 @@ import scala.collection.mutable.HashSet
 import vsb.graphinterfaces._
 import scala.collection.Set
 
+/**
+ * Single vertex of graph
+ */
 class VertexImpl(id: Long, metadata: Metadata = new MetadataImpl) extends Vertex {
 
-	val edges = new HashSet[Edge]();
+	private val edges = new HashSet[Edge]
 	
 	def getId: Long = id
 	

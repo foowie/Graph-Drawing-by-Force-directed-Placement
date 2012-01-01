@@ -1,5 +1,8 @@
 package vsb.graphinterfaces
 
+/**
+ * Metadata of vertex
+ */
 trait Metadata {
 
 	def setValue(name: String, value: Any)

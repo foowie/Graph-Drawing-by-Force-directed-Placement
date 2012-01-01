@@ -10,6 +10,9 @@ import vsb.rob040.gaks.fruchtermanreingold.vertexneighbours._
 
 object Main {
 
+	/**
+	 * Display help
+	 */
 	def printHelp = {
 		println("")
 		println("Graph Drawing by Force-directed Placement")
@@ -45,7 +48,7 @@ object Main {
 		var displayInfo: Boolean = false
 		var squareGrid: Boolean = true
 		
-		
+		// process input parameters
 		args.foreach(arg => {
 				if(arg.startsWith("-")) {
 					val value = arg.substring(3)
@@ -65,6 +68,7 @@ object Main {
 					throw new IllegalArgumentException("Invalid option '" + arg + "'")
 			})
 		
+		// default values
 		if(input == null)
 			return println("No file specified !!!")
 		if(output == null)
@@ -74,22 +78,28 @@ object Main {
 		
 		val start = System.currentTimeMillis
 		
+		// create graph layout
 		val reader = new InputStreamReader(new FileInputStream(input))
 		val graph = new GraphFactory(new GraphSourceReader(reader)).createGraph
 		val layout = new FruchtermanReingoldLayout(width, height, graph, iterations)
 		val gi = new LayoutImage(new LayoutRendererImpl(outerBorder, displyVerticeNames), outerBorder)
 		
+		// set suqare-grid alg. for repulsion
 		if(squareGrid)
-			layout.vertexNeighbours = new GridSquareVertexNeighbours(graph, layout.width, layout.height, (2*layout.k).floor.toInt)
-		
+			layout.vertexNeighbours = new GridSquareVertexNeighbours(graph, layout.getWidth, layout.getHeight, (2*layout.getK).round.toInt)
+
+		// set callback - save graph into file after last iteration
 		layout.onLoop = (i, last) => {
 			if(last)
 				gi.save(layout, new File(output + ".png"))			
 		}
 		
+		// execute layout
 		layout.run
 		
 		val stop = System.currentTimeMillis
+		
+		// display info about graph
 		if(displayInfo)
 			println("Graph '" + input + "' generated in " + (stop - start) + "ms Vertices: " + graph.getVertices.size + " Edges: " + graph.getEdges.size + (if(squareGrid)" with square-grid algorithm"else""))
 	}

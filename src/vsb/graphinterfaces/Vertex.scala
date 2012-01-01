@@ -1,5 +1,8 @@
 package vsb.graphinterfaces
 
+/**
+ * Vertex of graph
+ */
 trait Vertex {
 	
 	def getId: Long
